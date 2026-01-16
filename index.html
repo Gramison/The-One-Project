@@ -1,1 +1,89 @@
-(HTML KODUNUZ)
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>THE ONE - Global App</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+
+    <div id="auth-screen" class="screen">
+        <div class="logo">THE ONE</div>
+        <div class="card">
+            <input type="text" id="reg-username" placeholder="Kullanıcı Adı">
+            <input type="email" id="email" placeholder="E-posta">
+            <input type="password" id="password" placeholder="Şifre">
+            <button class="btn-option" onclick="handleAuth('login')">GİRİŞ YAP</button>
+            <button class="btn-option secondary" onclick="handleAuth('register')" style="margin-top:10px; font-size:11px; border:none;">HESAP OLUŞTUR</button>
+        </div>
+    </div>
+
+    <div id="main-app" class="screen" style="display:none;">
+        <header class="user-bar">
+            <div id="user-display" onclick="toggleDropdown()">... ▼</div>
+            <div id="user-menu" class="dropdown">
+                <button onclick="showPanel('profile')">👤 PROFİLİM</button>
+                <button onclick="showPanel('store')">🛒 MAĞAZA (PRO)</button>
+                <button onclick="showPanel('settings')">⚙️ AYARLAR</button>
+                <hr style="border:0.1px solid rgba(212,175,55,0.2);">
+                <button onclick="handleLogout()" style="color:#ff4d4d;">ÇIKIŞ YAP</button>
+            </div>
+        </header>
+
+        <div id="content-area">
+            <div id="question-panel">
+                <div class="card">
+                    <div id="question-header" style="display:flex; justify-content: space-between; font-size: 10px; opacity: 0.6; margin-bottom: 10px;">
+                        <span id="question-author">...</span>
+                        <span id="question-lang">LIVE 🌎</span>
+                    </div>
+                    <p id="question-text">Yükleniyor...</p>
+                    <div id="options-container"></div>
+                    <div id="stats-container" style="display:none; margin-top:20px;">
+                        <div class="stat-bar-bg"><div id="stat-bar-gold"></div></div>
+                        <div class="stat-labels"><span id="txt-1"></span><span id="txt-2"></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-panel" style="display:none;" class="card">
+                <h3 id="prof-name">Profil</h3>
+                <div class="stat-box">
+                    <div class="stat-item"><span id="q-count">0</span><br><small>Sorularım</small></div>
+                    <div class="stat-item"><span id="prof-status">Standart</span><br><small>Statü</small></div>
+                </div>
+                <button class="btn-option" onclick="showPanel('question')">GERİ DÖN</button>
+            </div>
+
+            <div id="store-panel" style="display:none;" class="card">
+                <h3>MAĞAZA</h3>
+                <p>PRO ile dünyayı yönetin.</p>
+                <button class="btn-option" onclick="startCheckout()">GOOGLE PLAY İLE ÖDE</button>
+                <button class="btn-option" onclick="showPanel('question')" style="border:none;">İPTAL</button>
+            </div>
+        </div>
+
+        <button id="ask-btn" onclick="openAskModal()">SORU SOR +</button>
+    </div>
+
+    <div id="ask-modal" class="modal" style="display:none;">
+        <div class="card">
+            <h3>YENİ İKİLEM</h3>
+            <textarea id="new-q-text" placeholder="Sorum nedir?"></textarea>
+            <input type="text" id="opt-1" placeholder="1. Seçenek">
+            <input type="text" id="opt-2" placeholder="2. Seçenek">
+            <button class="btn-option" onclick="submitQuestion()">YAYINLA</button>
+            <button class="btn-option" onclick="closeAskModal()" style="border:none;">KAPAT</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
