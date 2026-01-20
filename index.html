@@ -2,88 +2,86 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>THE ONE - Global App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE ONE | Global Decision Engine</title>
     <link rel="stylesheet" href="style.css">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@200;400;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div id="auth-screen" class="screen">
-        <div class="logo">THE ONE</div>
-        <div class="card">
-            <input type="text" id="reg-username" placeholder="Kullanıcı Adı">
-            <input type="email" id="email" placeholder="E-posta">
-            <input type="password" id="password" placeholder="Şifre">
-            <button class="btn-option" onclick="handleAuth('login')">GİRİŞ YAP</button>
-            <button class="btn-option secondary" onclick="handleAuth('register')" style="margin-top:10px; font-size:11px; border:none;">HESAP OLUŞTUR</button>
+    <div class="dynamic-bg"></div>
+
+    <div id="scr-splash" class="screen active">
+        <div class="main-loader"></div>
+        <h1 class="brand-logo">THE ONE</h1>
+    </div>
+
+    <div id="scr-auth" class="screen">
+        <div class="premium-glass-card">
+            <h1 class="gold-title">THE ONE</h1>
+            <p class="subtitle">DÜNYANIN KARAR MOTORU</p>
+            <div class="input-group">
+                <input type="text" id="reg-user" placeholder="@username" class="reg-only">
+                <input type="email" id="auth-email" placeholder="E-posta Adresi">
+                <input type="password" id="auth-pass" placeholder="Şifre">
+                <button onclick="handleAuth()" class="btn-shine">ERİŞİM SAĞLA</button>
+            </div>
+            <p onclick="toggleAuth()" id="auth-toggle">Henüz bir üyeliğin yok mu? Kayıt Ol</p>
         </div>
     </div>
 
-    <div id="main-app" class="screen" style="display:none;">
-        <header class="user-bar">
-            <div id="user-display" onclick="toggleDropdown()">... ▼</div>
-            <div id="user-menu" class="dropdown">
-                <button onclick="showPanel('profile')">👤 PROFİLİM</button>
-                <button onclick="showPanel('store')">🛒 MAĞAZA (PRO)</button>
-                <button onclick="showPanel('settings')">⚙️ AYARLAR</button>
-                <hr style="border:0.1px solid rgba(212,175,55,0.2);">
-                <button onclick="handleLogout()" style="color:#ff4d4d;">ÇIKIŞ YAP</button>
-            </div>
-        </header>
+    <div id="scr-app" class="screen">
+        <aside class="sidebar-gold">
+            <div class="app-symbol">1</div>
+            <nav class="nav-menu">
+                <button onclick="nav('feed')" id="nav-feed" class="active">✦</button>
+                <button onclick="nav('search')">🔍</button>
+                <button onclick="nav('shop')">🛒</button>
+                <button onclick="nav('profile')">👤</button>
+            </nav>
+            <button onclick="logout()" class="btn-logout">✕</button>
+        </aside>
 
-        <div id="content-area">
-            <div id="question-panel">
-                <div class="card">
-                    <div id="question-header" style="display:flex; justify-content: space-between; font-size: 10px; opacity: 0.6; margin-bottom: 10px;">
-                        <span id="question-author">...</span>
-                        <span id="question-lang">LIVE 🌎</span>
-                    </div>
-                    <p id="question-text">Yükleniyor...</p>
-                    <div id="options-container"></div>
-                    <div id="stats-container" style="display:none; margin-top:20px;">
-                        <div class="stat-bar-bg"><div id="stat-bar-gold"></div></div>
-                        <div class="stat-labels"><span id="txt-1"></span><span id="txt-2"></span></div>
+        <main class="content-view">
+            <section id="tab-feed" class="tab-active">
+                <div class="header-row">
+                    <h2 class="view-label">GLOBAL AKIŞ</h2>
+                    <div class="credit-badge">🪙 <span id="user-credits">500</span></div>
+                </div>
+
+                <div class="create-card">
+                    <textarea id="q-text" placeholder="İkilemini dünyaya sor..."></textarea>
+                    <div class="card-actions">
+                        <label class="upload-btn">📷 Görsel Ekle <input type="file" id="q-file" accept="image/*" hidden></label>
+                        <button onclick="sendDilemma()" class="btn-send">DÜNYAYA SOR</button>
                     </div>
                 </div>
-            </div>
 
-            <div id="profile-panel" style="display:none;" class="card">
-                <h3 id="prof-name">Profil</h3>
-                <div class="stat-box">
-                    <div class="stat-item"><span id="q-count">0</span><br><small>Sorularım</small></div>
-                    <div class="stat-item"><span id="prof-status">Standart</span><br><small>Statü</small></div>
+                <div id="feed-container">
+                    <div class="dilemma-card premium-border">
+                        <div class="card-header">
+                            <span class="user-tag">@theone_official</span>
+                            <span class="timer">12s</span>
+                        </div>
+                        <p class="question-txt">"The One" bu yılın en büyük girişimi olur mu?</p>
+                        <div class="vote-engine">
+                            <div class="v-option" onclick="castVote('a')">
+                                <div class="v-label">KESİNLİKLE</div>
+                                <div class="v-progress" id="bar-a" style="width: 87%"></div>
+                                <span class="v-count" id="count-a">8.7K</span>
+                            </div>
+                            <div class="v-option" onclick="castVote('b')">
+                                <div class="v-label">ŞÜPHELİ</div>
+                                <div class="v-progress" id="bar-b" style="width: 13%"></div>
+                                <span class="v-count" id="count-b">1.3K</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-option" onclick="showPanel('question')">GERİ DÖN</button>
-            </div>
-
-            <div id="store-panel" style="display:none;" class="card">
-                <h3>MAĞAZA</h3>
-                <p>PRO ile dünyayı yönetin.</p>
-                <button class="btn-option" onclick="startCheckout()">GOOGLE PLAY İLE ÖDE</button>
-                <button class="btn-option" onclick="showPanel('question')" style="border:none;">İPTAL</button>
-            </div>
-        </div>
-
-        <button id="ask-btn" onclick="openAskModal()">SORU SOR +</button>
+            </section>
+        </main>
     </div>
 
-    <div id="ask-modal" class="modal" style="display:none;">
-        <div class="card">
-            <h3>YENİ İKİLEM</h3>
-            <textarea id="new-q-text" placeholder="Sorum nedir?"></textarea>
-            <input type="text" id="opt-1" placeholder="1. Seçenek">
-            <input type="text" id="opt-2" placeholder="2. Seçenek">
-            <button class="btn-option" onclick="submitQuestion()">YAYINLA</button>
-            <button class="btn-option" onclick="closeAskModal()" style="border:none;">KAPAT</button>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
