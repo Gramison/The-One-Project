@@ -1,87 +1,162 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <!-- Capacitor Meta Tags - Mobil Derleme İçin Gerekli -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="The One">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com; img-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com;">
+    
     <title>THE ONE | Global Decision Engine</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@200;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Capacitor.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@capacitor/core@5.0.0/dist/capacitor.js"></script>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlRIRSBPTkUiLAogICJzaG9ydF9uYW1lIjogIlRIRSBPQUUiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAwMDAwMCIsCiAgInRoZW1lX2NvbG9yIjogIiNkNGFmMzciLAogICJpY29ucyI6IFtdCn0=">
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@200;400;900&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="bg-black text-white overflow-hidden">
 
+    <!-- Dynamic Background -->
     <div class="dynamic-bg"></div>
 
+    <!-- Splash Screen -->
     <div id="scr-splash" class="screen active">
         <div class="main-loader"></div>
         <h1 class="brand-logo">THE ONE</h1>
     </div>
 
+    <!-- Auth Screen -->
     <div id="scr-auth" class="screen">
         <div class="premium-glass-card">
             <h1 class="gold-title">THE ONE</h1>
-            <p class="subtitle">DÜNYANIN KARAR MOTORU</p>
+            <p class="subtitle">GLOBAL DECISION ENGINE</p>
             <div class="input-group">
                 <input type="text" id="reg-user" placeholder="@username" class="reg-only">
-                <input type="email" id="auth-email" placeholder="E-posta Adresi">
-                <input type="password" id="auth-pass" placeholder="Şifre">
-                <button onclick="handleAuth()" class="btn-shine">ERİŞİM SAĞLA</button>
+                <input type="email" id="auth-email" placeholder="E-posta Adresi" required>
+                <input type="password" id="auth-pass" placeholder="Şifre" required>
+                <button onclick="handleAuth()" class="btn-shine w-full">ERİŞİM SAĞLA</button>
             </div>
-            <p onclick="toggleAuth()" id="auth-toggle">Henüz bir üyeliğin yok mu? Kayıt Ol</p>
+            <p onclick="toggleAuth()" id="auth-toggle" class="cursor-pointer text-gray-500 text-sm mt-4 hover:text-gold transition">Henüz bir üyeliğin yok mu? Kayıt Ol</p>
         </div>
     </div>
 
+    <!-- Main App -->
     <div id="scr-app" class="screen">
+        <!-- Sidebar Navigation -->
         <aside class="sidebar-gold">
             <div class="app-symbol">1</div>
             <nav class="nav-menu">
-                <button onclick="nav('feed')" id="nav-feed" class="active">✦</button>
-                <button onclick="nav('search')">🔍</button>
-                <button onclick="nav('shop')">🛒</button>
-                <button onclick="nav('profile')">👤</button>
+                <button onclick="navTab('feed')" id="nav-feed" class="nav-btn active">✦</button>
+                <button onclick="navTab('explore')" id="nav-explore" class="nav-btn">🔍</button>
+                <button onclick="navTab('shop')" id="nav-shop" class="nav-btn">🛒</button>
+                <button onclick="navTab('profile')" id="nav-profile" class="nav-btn">👤</button>
             </nav>
             <button onclick="logout()" class="btn-logout">✕</button>
         </aside>
 
+        <!-- Content Area -->
         <main class="content-view">
-            <section id="tab-feed" class="tab-active">
+            <!-- Feed Tab -->
+            <section id="tab-feed" class="tab-content tab-active">
                 <div class="header-row">
                     <h2 class="view-label">GLOBAL AKIŞ</h2>
-                    <div class="credit-badge">🪙 <span id="user-credits">500</span></div>
-                </div>
-
-                <div class="create-card">
-                    <textarea id="q-text" placeholder="İkilemini dünyaya sor..."></textarea>
-                    <div class="card-actions">
-                        <label class="upload-btn">📷 Görsel Ekle <input type="file" id="q-file" accept="image/*" hidden></label>
-                        <button onclick="sendDilemma()" class="btn-send">DÜNYAYA SOR</button>
+                    <div class="credit-badge flex items-center gap-2">
+                        🪙 <span id="user-credits">500</span>
                     </div>
                 </div>
 
-                <div id="feed-container">
-                    <div class="dilemma-card premium-border">
-                        <div class="card-header">
-                            <span class="user-tag">@theone_official</span>
-                            <span class="timer">12s</span>
-                        </div>
-                        <p class="question-txt">"The One" bu yılın en büyük girişimi olur mu?</p>
-                        <div class="vote-engine">
-                            <div class="v-option" onclick="castVote('a')">
-                                <div class="v-label">KESİNLİKLE</div>
-                                <div class="v-progress" id="bar-a" style="width: 87%"></div>
-                                <span class="v-count" id="count-a">8.7K</span>
-                            </div>
-                            <div class="v-option" onclick="castVote('b')">
-                                <div class="v-label">ŞÜPHELİ</div>
-                                <div class="v-progress" id="bar-b" style="width: 13%"></div>
-                                <span class="v-count" id="count-b">1.3K</span>
-                            </div>
-                        </div>
+                <!-- Create Dilemma -->
+                <div class="create-card mb-8">
+                    <textarea id="q-text" placeholder="İkilemini dünyaya sor..." class="w-full h-24 bg-transparent border-0 text-white text-lg resize-none focus:outline-none"></textarea>
+                    <div class="card-actions flex justify-between items-center mt-4">
+                        <label class="upload-btn cursor-pointer text-gold text-sm border border-gray-800 px-4 py-2 rounded-xl hover:border-gold transition">
+                            📷 Görsel Ekle
+                            <input type="file" id="q-file" accept="image/*,video/*" hidden>
+                        </label>
+                        <button onclick="sendDilemma()" class="btn-send bg-gold text-black font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-gold/30 transition">
+                            DÜNYAYA SOR
+                        </button>
                     </div>
                 </div>
+
+                <!-- Feed Container -->
+                <div id="feed-container" class="space-y-6"></div>
+            </section>
+
+            <!-- Explore Tab -->
+            <section id="tab-explore" class="tab-content">
+                <div class="header-row">
+                    <h2 class="view-label">KEŞFET</h2>
+                </div>
+                <div id="explore-container" class="space-y-4"></div>
+            </section>
+
+            <!-- Shop Tab -->
+            <section id="tab-shop" class="tab-content">
+                <div class="header-row">
+                    <h2 class="view-label">MAĞAZA</h2>
+                    <div class="credit-badge flex items-center gap-2">
+                        🪙 <span id="shop-credits">500</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="shop-item premium-border p-6 rounded-2xl">
+                        <h3 class="text-gold font-bold mb-2">Premium Üyelik</h3>
+                        <p class="text-gray-400 text-sm mb-4">Reklamsız deneyim ve özel özellikler</p>
+                        <button onclick="purchaseItem('premium')" class="btn-shine w-full">🪙 2999</button>
+                    </div>
+                    <div class="shop-item premium-border p-6 rounded-2xl">
+                        <h3 class="text-gold font-bold mb-2">1000 Kredi</h3>
+                        <p class="text-gray-400 text-sm mb-4">Daha fazla ikilem sormak için</p>
+                        <button onclick="purchaseItem('credits')" class="btn-shine w-full">🪙 99</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Tab -->
+            <section id="tab-profile" class="tab-content">
+                <div class="profile-header text-center mb-8">
+                    <div class="profile-avatar w-24 h-24 mx-auto mb-4 rounded-full bg-gold flex items-center justify-center text-black font-bold text-2xl">
+                        <span id="profile-initial">U</span>
+                    </div>
+                    <h2 id="profile-username" class="text-2xl font-bold mb-2">@user</h2>
+                    <div class="profile-stats flex justify-center gap-8 mb-6">
+                        <div>
+                            <div id="profile-following" class="text-gold font-bold text-xl">0</div>
+                            <div class="text-xs text-gray-500">TAKİP EDİLEN</div>
+                        </div>
+                        <div>
+                            <div id="profile-followers" class="text-gold font-bold text-xl">0</div>
+                            <div class="text-xs text-gray-500">TAKİPÇİ</div>
+                        </div>
+                        <div>
+                            <div id="profile-dilemmas" class="text-gold font-bold text-xl">0</div>
+                            <div class="text-xs text-gray-500">İKİLEM</div>
+                        </div>
+                    </div>
+                    <button onclick="editProfile()" class="btn-shine px-6 py-2">Profili Düzenle</button>
+                </div>
+                <div id="profile-dilemmas-container" class="space-y-6"></div>
             </section>
         </main>
     </div>
 
+    <!-- Notification -->
+    <div id="notification" class="notification hidden"></div>
+
+    <!-- Firebase Scripts -->
     <script type="module" src="script.js"></script>
 </body>
 </html>
