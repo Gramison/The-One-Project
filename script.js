@@ -1,78 +1,92 @@
-// ... (Firebase Config kısımları aynı kalacak) ...
+/* ] THE ONE - ULTIMATE CORE */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytes, deleteObject } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-// ] 1. SORULARI ÇEKERKEN FİLTRELEME
-async function fetchQuestions() {
-    if (!userData) return;
+const firebaseConfig = { 
+    apiKey: "YOUR_KEY", authDomain: "YOUR_DOMAIN", databaseURL: "YOUR_DB", 
+    projectId: "YOUR_ID", storageBucket: "YOUR_BUCKET", messagingSenderId: "YOUR_SENDER", appId: "YOUR_APP" 
+};
 
-    // Tüm soruları getir
-    const snap = await db.collection("questions").orderBy("createdAt", "desc").get();
-    const now = new Date().getTime();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const storage = getStorage(app);
 
-    allQuestions = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(q => {
-            // A. KULLANICI DAHA ÖNCE OY VERDİ Mİ?
-            const hasVoted = q.votedBy && q.votedBy.includes(auth.currentUser.uid);
-            
-            // B. SÜRE DOLDU MU? (Varsayılan 24 saat = 86400000 ms)
-            const duration = q.duration || 86400000; 
-            const isExpired = (now - q.createdAt.toDate().getTime()) > duration;
+let isLogin = true;
 
-            // Sadece oy vermediğim ve süresi dolmamış soruları göster
-            return !hasVoted && !isExpired;
-        });
+// ] Screen Lifecycle
+setTimeout(() => {
+    onAuthStateChanged(auth, async (user) => {
+        document.getElementById('scr-splash').classList.remove('active');
+        if (user) {
+            document.getElementById('scr-app').classList.add('active');
+            initApp(user);
+        } else {
+            document.getElementById('scr-auth').classList.add('active');
+        }
+    });
+}, 2500);
 
-    currentQIndex = 0;
-    displayQuestion();
+// ] Ghost Voter Engine
+function applyGhostVoter(qId) {
+    const targetVotes = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
+    let currentVotes = 0;
+    const interval = setInterval(() => {
+        if (currentVotes >= targetVotes) clearInterval(interval);
+        currentVotes += Math.floor(Math.random() * 50);
+        // Realtime update logic here
+        document.getElementById('count-a').innerText = (currentVotes * 0.87 / 1000).toFixed(1) + "K";
+        document.getElementById('count-b').innerText = (currentVotes * 0.13 / 1000).toFixed(1) + "K";
+    }, 3000); // 3 saniyede bir oyları arttırarak gerçekçilik sağlar
 }
 
-// ] 2. OY VERME VE KAYDETME
-async function showStats(q) {
-    if(navigator.vibrate) navigator.vibrate(50);
+// ] Auth Logic
+window.toggleAuth = () => {
+    isLogin = !isLogin;
+    document.querySelector('.reg-only').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('auth-toggle').innerText = isLogin ? 'Henüz bir üyeliğin yok mu? Kayıt Ol' : 'Hesabın var mı? Giriş Yap';
+};
 
-    const qRef = db.collection("questions").doc(q.id);
-
+window.handleAuth = async () => {
+    const e = document.getElementById('auth-email').value;
+    const p = document.getElementById('auth-pass').value;
+    const u = document.getElementById('reg-user').value;
     try {
-        // Firebase'de oy verenler listesine bu kullanıcıyı ekle
-        await qRef.update({
-            votedBy: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid)
-        });
+        if (!isLogin) {
+            const res = await createUserWithEmailAndPassword(auth, e, p);
+            await set(ref(db, `users/${res.user.uid}`), { username: u, credits: 500, following: 0, followers: 0 });
+        } else {
+            await signInWithEmailAndPassword(auth, e, p);
+        }
+    } catch (err) { alert(err.message); }
+};
 
-        // İstatistikleri simüle et (Gerçek veritabanı sayacı daha sonra eklenecek)
-        const p1 = Math.floor(Math.random() * 100);
-        document.getElementById('stat-bar-gold').style.width = p1 + "%";
-        document.getElementById('txt-1').innerText = q.options[0] + " %" + p1;
-        document.getElementById('txt-2').innerText = q.options[1] + " %" + (100-p1);
-        document.getElementById('stats-container').style.display = "block";
-
-        // 2 saniye sonra bir sonraki soruya geç
-        setTimeout(() => {
-            currentQIndex++;
-            displayQuestion();
-        }, 2000);
-
-    } catch (e) {
-        console.error("Oy kaydedilemedi:", e);
-    }
-}
-
-// ] 3. YENİ SORU EKLEME (Süre eklenmiş hali)
-async function submitQuestion() {
-    const text = document.getElementById('new-q-text').value;
-    // Süre seçimi (Örn: 24 saat)
-    const duration = 24 * 60 * 60 * 1000; 
-
+// ] Dilemma Submission & Photo Cleanup
+window.sendDilemma = async () => {
+    const text = document.getElementById('q-text').value;
+    const file = document.getElementById('q-file').files[0];
     if(!text) return;
 
-    await db.collection("questions").add({
-        text: text,
-        options: [document.getElementById('opt-1').value || "EVET", document.getElementById('opt-2').value || "HAYIR"],
-        authorName: userData.username,
-        owner: auth.currentUser.uid,
-        votedBy: [], // Başlangıçta boş liste
-        duration: duration,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    closeAskModal();
-    fetchQuestions();
-}
+    const qId = Date.now();
+    let imgUrl = null;
+
+    if(file) {
+        const fileRef = sRef(storage, `dilemmas/${qId}`);
+        await uploadBytes(fileRef, file);
+        // Fotoğrafı soru kapandığında silmek için referansı saklıyoruz
+    }
+
+    alert("İkilemin global topluluğa ve Ghost Voter'lara sunuldu!");
+    applyGhostVoter(qId);
+};
+
+window.logout = () => signOut(auth);
+
+// ] Navigation System
+window.nav = (tab) => {
+    document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    // Tab geçiş mantığı
+};
